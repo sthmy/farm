@@ -1,3 +1,5 @@
+import { fmtPrice } from './market.js';
+
 const UP = '#3FC7C0';
 const DOWN = '#E23E57';
 
@@ -35,7 +37,13 @@ export function createChart(canvas) {
   resize();
 
   function fmt(p) {
-    return p >= 100 ? p.toFixed(1) : p >= 1 ? p.toFixed(3) : p.toFixed(4);
+    return fmtPrice(p);
+  }
+
+  function box(x, y, w2, h2, r) {
+    if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w2, h2, r); return; }
+    ctx.beginPath();
+    ctx.rect(x, y, w2, h2);
   }
 
   function draw(data, color) {
@@ -101,8 +109,7 @@ export function createChart(canvas) {
     ctx.globalAlpha = 1;
 
     ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.roundRect(plotW + 2, ly - 9, padR - 4, 18, 4);
+    box(plotW + 2, ly - 9, padR - 4, 18, 4);
     ctx.fill();
     ctx.fillStyle = '#14101E';
     ctx.textAlign = 'center';
@@ -123,8 +130,7 @@ export function createChart(canvas) {
       const tw = ctx.measureText(label).width + 14;
       const bx = Math.max(2, Math.min(cx - tw / 2, plotW - tw));
       ctx.fillStyle = 'rgba(20,16,30,.92)';
-      ctx.beginPath();
-      ctx.roundRect(bx, 2, tw, 20, 6);
+      box(bx, 2, tw, 20, 6);
       ctx.fill();
       ctx.fillStyle = '#E9E2F0';
       ctx.textAlign = 'left';

@@ -86,10 +86,63 @@ export const ASSETS = [
       ['Мак попал в клип, спрос удвоился', 1],
       ['Оптовик передумал в последний момент', -1]
     ]
+  },
+  {
+    id: 'DUPLODER',
+    name: '$DUPLODER',
+    short: 'DUPLODER',
+    emoji: '🕳️',
+    seed: 5501,
+    base: 0.042,
+    vol: 0.92,
+    eventChance: 0.30,
+    eventAmp: 0.62,
+    rug: 0.55,
+    color: '#8B5CF6',
+    glow: 'rgba(139,92,246,.4)',
+    about: 'Монета без сайта, без команды и без совести. Иногда даёт иксы.',
+    news: [
+      ['Фонд закупил дупла на весь баланс', 1],
+      ['Листинг на бирже, о которой никто не слышал', 1],
+      ['Инфлюенсер поставил дупло на аватарку', 1],
+      ['Кит слил мешок прямо в стакан', -1],
+      ['Разработчик вышел покурить и не вернулся', -1],
+      ['Сайт проекта оказался презентацией в Ворде', -1]
+    ]
+  },
+  {
+    id: 'MUSORDROP',
+    name: '$MUSORDROP',
+    short: 'MUSORDROP',
+    emoji: '🗑️',
+    seed: 6607,
+    base: 0.0013,
+    vol: 1.05,
+    eventChance: 0.34,
+    eventAmp: 0.78,
+    rug: 0.62,
+    color: '#22D3EE',
+    glow: 'rgba(34,211,238,.4)',
+    about: 'Самая честная монета: в названии всё написано. Ходит на сотни процентов.',
+    news: [
+      ['Аирдроп раздали, все побежали продавать', -1],
+      ['Мусоровоз объявлен официальным талисманом', 1],
+      ['Комьюнити выкупило дно, дно оказалось люком', -1],
+      ['Биржа включила торги, стакан пустой', -1],
+      ['Мем про мусорку залетел в рекомендации', 1],
+      ['Кто-то купил на всю зарплату и угадал', 1]
+    ]
   }
 ];
 
 export const BY_ID = Object.fromEntries(ASSETS.map(a => [a.id, a]));
+
+export function fmtPrice(p) {
+  if (p >= 100) return p.toFixed(1);
+  if (p >= 1) return p.toFixed(3);
+  if (p >= 0.01) return p.toFixed(4);
+  return p.toFixed(6);
+}
 
 const OCTAVES = [
   [6500, 1.0],
@@ -126,7 +179,7 @@ function eventMul(asset, t) {
   for (let k = w - 1; k <= w; k++) {
     const roll = hash(asset.seed + 991, k);
     if (roll >= asset.eventChance) continue;
-    const dir = hash(asset.seed + 992, k) < 0.46 ? -1 : 1;
+    const dir = hash(asset.seed + 992, k) < (asset.rug || 0.46) ? -1 : 1;
     const amp = asset.eventAmp * (0.45 + hash(asset.seed + 993, k) * 0.85);
     const p = (t - k * EVENT_WINDOW) / (EVENT_WINDOW * 2);
     mul *= 1 + dir * amp * eventShape(p);
@@ -185,11 +238,52 @@ export function feed(now, limit = 12) {
   for (let k = w; k > w - 40 && items.length < limit; k--) {
     for (const a of ASSETS) {
       if (hash(a.seed + 991, k) >= a.eventChance) continue;
-      const dir = hash(a.seed + 992, k) < 0.46 ? -1 : 1;
+      const dir = hash(a.seed + 992, k) < (a.rug || 0.46) ? -1 : 1;
       const pool = a.news.filter(n => n[1] === dir);
+      if (!pool.length) continue;
       const text = pool[Math.floor(hash(a.seed + 994, k) * pool.length) % pool.length][0];
       items.push({ asset: a.id, dir, text, ts: k * EVENT_WINDOW });
     }
   }
   return items.sort((x, y) => y.ts - x.ts).slice(0, limit);
+}
+
+export const PERKS = [
+  { id: 'tax', emoji: '🧾', name: 'Свой человек в налоговой', price: 60, about: 'Комиссия падает с 0.4% до 0.15%' },
+  { id: 'wallet', emoji: '👛', name: 'Толстый кошелёк', price: 120, about: 'Пособие $15 и раз в час вместо четырёх' },
+  { id: 'farm', emoji: '🚜', name: 'Батрак на ферме', price: 180, about: '+$1.20 в час, пока тебя нет. Копится до 8 часов' },
+  { id: 'insider', emoji: '🕶️', name: 'Инсайдер', price: 400, about: 'Новости приходят за 25 секунд до движения цены' },
+  { id: 'shovel', emoji: '🥇', name: 'Золотая лопата', price: 1500, about: 'Двойной ежедневный дроп и медаль в топе' }
+];
+
+export const RANKS = [
+  [0, 'Бомж с телефона'],
+  [25, 'Подсобник'],
+  [75, 'Барыга с рынка'],
+  [200, 'Фермер средней руки'],
+  [600, 'Оптовик'],
+  [1500, 'Картофельный магнат'],
+  [5000, 'Мусорный лорд'],
+  [15000, 'Хозяин полей']
+];
+
+export function rankOf(peak) {
+  let i = 0;
+  while (i + 1 < RANKS.length && peak >= RANKS[i + 1][0]) i++;
+  const next = RANKS[i + 1];
+  return {
+    level: i + 1,
+    title: RANKS[i][1],
+    from: RANKS[i][0],
+    to: next ? next[0] : null,
+    progress: next ? Math.min(1, (peak - RANKS[i][0]) / (next[0] - RANKS[i][0])) : 1
+  };
+}
+
+export const DAILY_MS = 20 * 3600e3;
+export const FARM_RATE = 1.2;
+export const FARM_CAP_MS = 8 * 3600e3;
+
+export function feeFor(perks) {
+  return perks && perks.tax ? 0.0015 : 0.004;
 }

@@ -87,11 +87,28 @@
     <div class="scroll" id="top"></div>
   </section>
 
+  <section class="view" id="v-shop">
+    <header class="top">
+      <div class="equity"><small>Свободные деньги</small><b class="mono" id="shopCash">$0.00</b></div>
+    </header>
+    <div class="scroll">
+      <button class="btn" id="daily" style="width:100%">Забрать дроп</button>
+      <p class="dim" style="font-size:12px;text-align:center;margin:8px 0 0">Заходи каждый день — серия растит награду до $14</p>
+      <h3 class="sec">Апгрейды навсегда</h3>
+      <div id="shop"></div>
+    </div>
+  </section>
+
   <section class="view" id="v-me">
     <header class="top">
       <div class="equity"><small>Позывной</small><b id="nick2">—</b></div>
     </header>
     <div class="scroll">
+      <div class="rankbox">
+        <div id="rankLine">—</div>
+        <div class="bar"><i id="bar"></i></div>
+        <small class="dim" id="barTxt"></small>
+      </div>
       <div class="stats" id="stats"></div>
       <h3 class="sec">Достижения</h3>
       <div class="badges" id="badges"></div>
@@ -108,6 +125,7 @@
     <button data-v="trade" aria-current="page"><b>📈</b>Торги</button>
     <button data-v="bag"><b>🎒</b>Портфель</button>
     <button data-v="top"><b>🏆</b>Топ</button>
+    <button data-v="shop"><b>🛒</b>Лавка</button>
     <button data-v="me"><b>🧑‍🌾</b>Профиль</button>
   </nav>
 </div>
