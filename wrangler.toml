@@ -1,0 +1,11 @@
+name = "ferma-birzha"
+main = "src/index.js"
+compatibility_date = "2026-01-15"
+
+[vars]
+ALLOWED_ORIGIN = "https://ТВОЙ-НИК.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ferma"
+database_id = "СЮДА_ID_ИЗ_КОМАНДЫ_CREATE"
