@@ -150,7 +150,7 @@ function go(v) {
   if (v === 'top') drawTop();
   if (v === 'shop') drawShop();
   if (v === 'me') drawMe();
-  if (v === 'trade') chart.resize();
+  if (v === 'trade') requestAnimationFrame(() => { chart.resize(); paintTrade(); });
 }
 
 $('nav').onclick = e => {
@@ -262,7 +262,8 @@ function paintTrade() {
     if (doSpark) sparkline(el.querySelector('[data-s]'), spark(a.id, t, EV), a.color);
   }
 
-  chart.draw(candles(asset, tf, window.innerWidth > 860 ? 76 : 44, t, EV), BY_ID[asset].color);
+  const bars = window.innerWidth > 860 ? 76 : window.innerWidth > 400 ? 40 : 32;
+  chart.draw(candles(asset, tf, bars, t, EV), BY_ID[asset].color);
 
   const mine = held(asset);
   if (mine.qty > 0) {
@@ -528,8 +529,7 @@ async function boot() {
   buildQuick();
   pick(asset);
   go('trade');
-  chart.resize();
-  paintTrade();
+  requestAnimationFrame(() => { chart.resize(); paintTrade(); });
   paintTicker();
   if (s.farmed > 0.05) toast(`Батрак наработал ${money(s.farmed)}, пока тебя не было`);
   else if (!U.trades) setTimeout(() => toast('Начни с картошки: сумма, «Купить», потом продай дороже'), 900);

@@ -7,6 +7,7 @@ export function createChart(canvas) {
   const ctx = canvas.getContext('2d');
   let w = 0, h = 0, dpr = 1;
   let cross = null;
+  let last = null;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -34,6 +35,16 @@ export function createChart(canvas) {
   canvas.addEventListener('pointercancel', end);
   canvas.addEventListener('pointerleave', end);
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 120));
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => {
+      const before = w * h;
+      resize();
+      if (last && w * h && w * h !== before) draw(last.data, last.color);
+    }).observe(canvas);
+  }
+
   resize();
 
   function fmt(p) {
@@ -47,6 +58,7 @@ export function createChart(canvas) {
   }
 
   function draw(data, color) {
+    last = { data, color };
     if (!w || !h || !data.length) return;
     const padR = 58, padB = 18, padT = 10;
     const plotW = w - padR;
