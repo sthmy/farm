@@ -1,8 +1,8 @@
-import { API_BASE } from './config.js';
+import { API_BASE } from './config.js?v=3';
 import {
   priceAt, indexEvents, makeAllEvents, packEvents, PERKS, QUESTS, dayStart,
   EVENT_WINDOW, DAILY_MS, FARM_RATE, FARM_CAP_MS, feeFor
-} from './market.js';
+} from './market.js?v=3';
 
 const BASE = (globalThis.__FB_API || API_BASE || '').replace(/\/+$/, '');
 const GRANT_MS = 4 * 3600e3;

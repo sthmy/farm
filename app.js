@@ -1,9 +1,9 @@
 import {
   ASSETS, BY_ID, PERKS, priceAt, candles, changePct, spark, feedFrom,
   unpackEvents, fmtPrice, rankOf, feeFor, EVENT_WINDOW
-} from './market.js';
-import { createChart, sparkline } from './chart.js';
-import { store, offline } from './store.js';
+} from './market.js?v=3';
+import { createChart, sparkline } from './chart.js?v=3';
+import { store, offline } from './store.js?v=3';
 
 const $ = id => document.getElementById(id);
 const money = v => (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(2);

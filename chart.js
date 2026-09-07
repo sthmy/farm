@@ -1,4 +1,4 @@
-import { fmtPrice } from './market.js';
+import { fmtPrice } from './market.js?v=3';
 
 const UP = '#3FC7C0';
 const DOWN = '#E23E57';
