@@ -65,13 +65,32 @@ function botBoard(now) {
   });
 }
 
+function normalize(u) {
+  if (!u || typeof u !== 'object') return null;
+  u.holdings = u.holdings && typeof u.holdings === 'object' ? u.holdings : {};
+  u.perks = u.perks && typeof u.perks === 'object' ? u.perks : {};
+  u.quests = u.quests && typeof u.quests === 'object' ? u.quests : {};
+  u.day = u.day && typeof u.day === 'object' ? u.day : {};
+  u.log = Array.isArray(u.log) ? u.log : [];
+  u.cash = Number.isFinite(u.cash) ? u.cash : 10;
+  u.peak = Number.isFinite(u.peak) ? u.peak : u.cash;
+  u.trades = Number.isFinite(u.trades) ? u.trades : 0;
+  u.lastGrant = Number.isFinite(u.lastGrant) ? u.lastGrant : 0;
+  u.dailyTs = Number.isFinite(u.dailyTs) ? u.dailyTs : 0;
+  u.farmTs = Number.isFinite(u.farmTs) ? u.farmTs : 0;
+  u.streak = Number.isFinite(u.streak) ? u.streak : 0;
+  for (const [id, h] of Object.entries(u.holdings)) {
+    if (!h || !Number.isFinite(h.qty) || h.qty <= 0) delete u.holdings[id];
+    else if (!Number.isFinite(h.avg)) h.avg = 0;
+  }
+  return u;
+}
+
 function mine() {
   const all = db.read();
   const rec = all[token.slice(6)];
-  if (!rec) throw new Error('Сессия потеряна, войди заново');
-  if (!rec.u.day) rec.u.day = {};
-  if (!rec.u.quests) rec.u.quests = {};
-  return { all, u: rec.u };
+  if (!rec || !rec.u) throw new Error('Сессия потеряна, войди заново');
+  return { all, u: normalize(rec.u) };
 }
 
 function localEvents(from, to) {
@@ -83,6 +102,7 @@ function localMarket(t) {
 }
 
 function equity(u, now) {
+  if (!u || !u.holdings) return 0;
   const ev = localMarket(now);
   let e = u.cash;
   for (const [id, h] of Object.entries(u.holdings)) e += h.qty * priceAt(id, now, ev);
@@ -262,13 +282,18 @@ export const store = {
     if (offline) {
       const now = Date.now();
       const all = db.read();
-      const me = all[token.slice(6)].u;
+      const rec = all[token.slice(6)];
+      if (!rec || !rec.u) throw new Error('Сессия потеряна, войди заново');
+      const me = normalize(rec.u);
       const rows = botBoard(now)
-        .concat(Object.values(all).map(x => ({
-          username: x.u.username,
-          equity: equity(x.u, now),
-          vip: !!x.u.perks.shovel
-        })))
+        .concat(Object.values(all)
+          .map(x => normalize(x && x.u))
+          .filter(Boolean)
+          .map(u => ({
+            username: u.username,
+            equity: equity(u, now),
+            vip: !!u.perks.shovel
+          })))
         .sort((a, b) => b.equity - a.equity)
         .slice(0, 50);
       const tape = (me.log || []).slice(0, 12).map(l => ({ ...l, username: me.username }));
