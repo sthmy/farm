@@ -262,9 +262,6 @@ function paintTrade() {
     if (doSpark) sparkline(el.querySelector('[data-s]'), spark(a.id, t, EV), a.color);
   }
 
-  const bars = window.innerWidth > 860 ? 76 : window.innerWidth > 400 ? 40 : 32;
-  chart.draw(candles(asset, tf, bars, t, EV), BY_ID[asset].color);
-
   const mine = held(asset);
   if (mine.qty > 0) {
     const pnl = mine.avg ? (priceAt(asset, t, EV) - mine.avg) / mine.avg * 100 : 0;
@@ -278,6 +275,9 @@ function paintTrade() {
   $('qty').textContent = qtyText(amt / px);
   $('buy').disabled = busy || amt <= 0 || amt > U.cash + 1e-9;
   $('sell').disabled = busy || held(asset).qty <= 0;
+
+  const bars = window.innerWidth > 860 ? 76 : window.innerWidth > 400 ? 40 : 32;
+  chart.draw(candles(asset, tf, bars, t, EV), BY_ID[asset].color);
 }
 
 function paintTicker() {

@@ -7,7 +7,7 @@ export function createChart(canvas) {
   const ctx = canvas.getContext('2d');
   let w = 0, h = 0, dpr = 1;
   let cross = null;
-  let last = null;
+  let lastFrame = null;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -41,7 +41,7 @@ export function createChart(canvas) {
     new ResizeObserver(() => {
       const before = w * h;
       resize();
-      if (last && w * h && w * h !== before) draw(last.data, last.color);
+      if (lastFrame && w * h && w * h !== before) draw(lastFrame.data, lastFrame.color);
     }).observe(canvas);
   }
 
@@ -58,7 +58,7 @@ export function createChart(canvas) {
   }
 
   function draw(data, color) {
-    last = { data, color };
+    lastFrame = { data, color };
     if (!w || !h || !data.length) return;
     const padR = 58, padB = 18, padT = 10;
     const plotW = w - padR;
@@ -108,8 +108,8 @@ export function createChart(canvas) {
     });
     ctx.globalAlpha = 1;
 
-    const last = data[data.length - 1].c;
-    const ly = Math.round(y(last)) + 0.5;
+    const close = data[data.length - 1].c;
+    const ly = Math.round(y(close)) + 0.5;
     ctx.strokeStyle = color;
     ctx.globalAlpha = 0.55;
     ctx.setLineDash([3, 4]);
@@ -126,7 +126,7 @@ export function createChart(canvas) {
     ctx.fillStyle = '#14101E';
     ctx.textAlign = 'center';
     ctx.font = '600 10px "JetBrains Mono", monospace';
-    ctx.fillText(fmt(last), plotW + padR / 2, ly);
+    ctx.fillText(fmt(close), plotW + padR / 2, ly);
 
     if (cross && cross.x < plotW) {
       const i = Math.max(0, Math.min(data.length - 1, Math.floor(cross.x / step)));
