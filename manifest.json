@@ -1,9 +1,0 @@
-{
-  "name": "Ферма и Биржа",
-  "short_name": "Ферма",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#14101E",
-  "theme_color": "#14101E",
-  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
-}
